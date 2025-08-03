@@ -1,9 +1,20 @@
 
+import { db } from '../db';
+import { projectsTable } from '../db/schema';
 import { type GetProjectsByUserIdInput, type Project } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getProjectsByUserId(input: GetProjectsByUserIdInput): Promise<Project[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all projects belonging to a specific user.
-    // Should return an empty array if no projects are found.
-    return Promise.resolve([]);
-}
+export const getProjectsByUserId = async (input: GetProjectsByUserIdInput): Promise<Project[]> => {
+  try {
+    const results = await db.select()
+      .from(projectsTable)
+      .where(eq(projectsTable.user_id, input.user_id))
+      .execute();
+
+    // Return the results as-is since all fields are already in correct format
+    return results;
+  } catch (error) {
+    console.error('Failed to get projects by user ID:', error);
+    throw error;
+  }
+};

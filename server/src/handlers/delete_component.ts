@@ -1,9 +1,25 @@
 
+import { db } from '../db';
+import { componentsTable } from '../db/schema';
 import { type DeleteComponentInput } from '../schema';
+import { eq, and } from 'drizzle-orm';
 
-export async function deleteComponent(input: DeleteComponentInput): Promise<{ success: boolean }> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting a component from the database.
-    // Should validate that the user owns the component before deletion.
-    return Promise.resolve({ success: true });
-}
+export const deleteComponent = async (input: DeleteComponentInput): Promise<{ success: boolean }> => {
+  try {
+    // Delete component only if it belongs to the user
+    const result = await db.delete(componentsTable)
+      .where(
+        and(
+          eq(componentsTable.id, input.id),
+          eq(componentsTable.user_id, input.user_id)
+        )
+      )
+      .execute();
+
+    // Check if any rows were affected (component existed and was owned by user)
+    return { success: (result.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Component deletion failed:', error);
+    throw error;
+  }
+};

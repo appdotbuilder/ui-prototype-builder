@@ -1,9 +1,19 @@
 
+import { db } from '../db';
+import { componentsTable } from '../db/schema';
 import { type Component } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getGlobalComponents(): Promise<Component[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all global components available to all users.
-    // These are predefined components that can be used by any user.
-    return Promise.resolve([]);
-}
+export const getGlobalComponents = async (): Promise<Component[]> => {
+  try {
+    const results = await db.select()
+      .from(componentsTable)
+      .where(eq(componentsTable.is_global, true))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch global components:', error);
+    throw error;
+  }
+};

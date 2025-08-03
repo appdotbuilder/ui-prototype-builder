@@ -1,9 +1,23 @@
 
+import { db } from '../db';
+import { usersTable } from '../db/schema';
 import { type GetUserByEmailInput, type User } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getUserByEmail(input: GetUserByEmailInput): Promise<User | null> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is finding a user by their email address.
-    // Should return null if user is not found.
-    return Promise.resolve(null);
-}
+export const getUserByEmail = async (input: GetUserByEmailInput): Promise<User | null> => {
+  try {
+    const result = await db.select()
+      .from(usersTable)
+      .where(eq(usersTable.email, input.email))
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Get user by email failed:', error);
+    throw error;
+  }
+};
